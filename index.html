@@ -284,6 +284,28 @@
     color: var(--text2);
   }
   .btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,0.06); }
+  .btn-sq {
+    width: auto;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    flex-shrink: 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--danger) !important;
+    border-color: rgba(239,68,68,0.35) !important;
+    background: rgba(239,68,68,0.07) !important;
+  }
+  .btn-sq:hover {
+    background: rgba(239,68,68,0.18) !important;
+    border-color: var(--danger) !important;
+  }
+  .btn-check-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .btn-check-row .btn-check-main { flex: 1; }
   .btn-danger {
     background: rgba(239,68,68,0.1);
     border-color: rgba(239,68,68,0.3);
@@ -884,7 +906,7 @@
     <div class="login-divider"></div>
     <div class="login-form">
       <div class="login-label">Введите логин и пароль для входа</div>
-      <input class="login-input" id="loginLogin" placeholder="Логин (например: ab12)" autocomplete="username" oninput="state.loginInput=this.value" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()" />
+      <input class="login-input" id="loginLogin" placeholder="Логин (например: ab-cd-89)" autocomplete="username" oninput="state.loginInput=this.value" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()" />
       <input class="login-input" id="loginPassword" placeholder="Пароль (4 цифры)" type="password" autocomplete="current-password" maxlength="4" oninput="state.passwordInput=this.value" onkeydown="if(event.key==='Enter')doLogin()" />
       <div id="loginSplashAlert" class="login-alert hidden">❌ Неверный логин или пароль.</div>
       <button class="login-btn" onclick="doLogin()">Войти →</button>
@@ -924,10 +946,57 @@
 <script>
 // ─── State ───────────────────────────────────────────────────────────────────
 const EMPLOYEES = [
-  { id: 1, name: 'Иван',    surname: 'Петров',   phone: '+79001234567', login: 'ip01', password: '1234' },
-  { id: 2, name: 'Мария',   surname: 'Сидорова', phone: '+79007654321', login: 'ms02', password: '5678' },
-  { id: 3, name: 'Алексей', surname: 'Кузнецов', phone: '+79009998877', login: 'ak03', password: '9012' },
-  { id: 4, name: 'Ольга',   surname: 'Иванова',  phone: '+79001112233', login: 'oi04', password: '3456' },
+  { id: 1, name: 'Иван', surname: 'Авдюшкин', tab: '17', org: 'ООО ПТ', login: 'pt-ai-17', password: '2824' },
+  { id: 2, name: 'Алексей', surname: 'Акимов', tab: '24', org: 'ООО ПТ', login: 'pt-aa-24', password: '1409' },
+  { id: 3, name: 'Татьяна', surname: 'Альмяшева', tab: '27', org: 'ООО ПТ', login: 'pt-at-27', password: '5506' },
+  { id: 4, name: 'Сергей', surname: 'Анисимов', tab: '29', org: 'ООО ПТ', login: 'pt-as-29', password: '5012' },
+  { id: 5, name: 'Сергей', surname: 'Анисимов', tab: '7', org: 'ООО ПТ', login: 'pt-as-7', password: '4657' },
+  { id: 6, name: 'Олег', surname: 'Войнов', tab: '14', org: 'ООО ПТ', login: 'pt-vo-14', password: '3286' },
+  { id: 7, name: 'Ольга', surname: 'Герасимова', tab: '30', org: 'ООО ПТ', login: 'pt-go-30', password: '2679' },
+  { id: 8, name: 'Людмила', surname: 'Голышева', tab: '8', org: 'ООО ПТ', login: 'pt-gl-8', password: '9935' },
+  { id: 9, name: 'Александр', surname: 'Гурьянов', tab: '39', org: 'ООО ПТ', login: 'pt-ga-39', password: '2424' },
+  { id: 10, name: 'Сергей', surname: 'Гусятников', tab: '50', org: 'ООО ПТ', login: 'pt-gs-50', password: '7912' },
+  { id: 11, name: 'Евгений', surname: 'Денисов', tab: '15', org: 'ООО ПТ', login: 'pt-de-15', password: '1520' },
+  { id: 12, name: 'Евгений', surname: 'Денисов', tab: '2', org: 'ООО ПТ', login: 'pt-de-2', password: '1488' },
+  { id: 13, name: 'Александр', surname: 'Дыдычкин', tab: '18', org: 'ООО ПТ', login: 'pt-da-18', password: '2535' },
+  { id: 14, name: 'Никита', surname: 'Захаров', tab: '53', org: 'ООО ПТ', login: 'pt-zn-53', password: '4582' },
+  { id: 15, name: 'Валерий', surname: 'Зернов', tab: '21', org: 'ООО ПТ', login: 'pt-zv-21', password: '4811' },
+  { id: 16, name: 'Евгений', surname: 'Каверин', tab: '19', org: 'ООО ПТ', login: 'pt-ke-19', password: '9279' },
+  { id: 17, name: 'Владимир', surname: 'Казеев', tab: '4', org: 'ООО ПТ', login: 'pt-kv-4', password: '1434' },
+  { id: 18, name: 'Иван', surname: 'Казеев', tab: '12', org: 'ООО ПТ', login: 'pt-ki-12', password: '4257' },
+  { id: 19, name: 'Алексей', surname: 'Киселев', tab: '3', org: 'ООО ПТ', login: 'pt-ka-3', password: '9928' },
+  { id: 20, name: 'Юлия', surname: 'Клюенкова', tab: '42', org: 'ООО ПТ', login: 'pt-kyu-42', password: '7873' },
+  { id: 21, name: 'Ирина', surname: 'Кудашкина', tab: '41', org: 'ООО ПТ', login: 'pt-ki-41', password: '4611' },
+  { id: 22, name: 'Алексей', surname: 'Кукушкин', tab: '33', org: 'ООО ПТ', login: 'pt-ka-33', password: '8359' },
+  { id: 23, name: 'Дмитрий', surname: 'Курмышкин', tab: '13', org: 'ООО ПТ', login: 'pt-kd-13', password: '5557' },
+  { id: 24, name: 'Денис', surname: 'Мезякаев', tab: '1', org: 'ООО ПТ', login: 'pt-md-1', password: '1106' },
+  { id: 25, name: 'Сергей', surname: 'Митин', tab: '5', org: 'ООО ПТ', login: 'pt-ms-5', password: '3615' },
+  { id: 26, name: 'Сергей', surname: 'Митин', tab: '26', org: 'ООО ПТ', login: 'pt-ms-26', password: '7924' },
+  { id: 27, name: 'Евгений', surname: 'Митряшкин', tab: '38', org: 'ООО ПТ', login: 'pt-me-38', password: '6574' },
+  { id: 28, name: 'Евгений', surname: 'Митякин', tab: '16', org: 'ООО ПТ', login: 'pt-me-16', password: '5552' },
+  { id: 29, name: 'Анастасия', surname: 'Нестерова', tab: '9', org: 'ООО ПТ', login: 'pt-na-9', password: '3547' },
+  { id: 30, name: 'Андрей', surname: 'Новиков', tab: '32', org: 'ООО ПТ', login: 'pt-na-32', password: '4527' },
+  { id: 31, name: 'Александр', surname: 'Овчинников', tab: '28', org: 'ООО ПТ', login: 'pt-oa-28', password: '6514' },
+  { id: 32, name: 'Александр', surname: 'Письмаркин', tab: '10', org: 'ООО ПТ', login: 'pt-pa-10', password: '2674' },
+  { id: 33, name: 'Юрий', surname: 'Преснухин', tab: '23', org: 'ООО ПТ', login: 'pt-pyu-23', password: '2519' },
+  { id: 34, name: 'Любовь', surname: 'Проткина', tab: '43', org: 'ООО ПТ', login: 'pt-pl-43', password: '7224' },
+  { id: 35, name: 'Николай', surname: 'Рокунов', tab: '36', org: 'ООО ПТ', login: 'pt-rn-36', password: '2584' },
+  { id: 36, name: 'Артем', surname: 'Северухин', tab: '34', org: 'ООО ПТ', login: 'pt-sa-34', password: '6881' },
+  { id: 37, name: 'Никита', surname: 'Седин', tab: '52', org: 'ООО ПТ', login: 'pt-sn-52', password: '6635' },
+  { id: 38, name: 'Татьяна', surname: 'Сластникова', tab: '45', org: 'ООО ПТ', login: 'pt-st-45', password: '5333' },
+  { id: 39, name: 'Андрей', surname: 'Соколов', tab: '22', org: 'ООО ПТ', login: 'pt-sa-22', password: '1711' },
+  { id: 40, name: 'Александр', surname: 'Суголь', tab: '25', org: 'ООО ПТ', login: 'pt-sa-25', password: '8527' },
+  { id: 41, name: 'Евгений', surname: 'Суняйкин', tab: '31', org: 'ООО ПТ', login: 'pt-se-31', password: '9785' },
+  { id: 42, name: 'Андрей', surname: 'Филимонов', tab: '35', org: 'ООО ПТ', login: 'pt-fa-35', password: '3045' },
+  { id: 43, name: 'Елена', surname: 'Филимонова', tab: '11', org: 'ООО ПТ', login: 'pt-fe-11', password: '7201' },
+  { id: 44, name: 'Екатерина', surname: 'Чернышова', tab: '44', org: 'ООО ПТ', login: 'pt-che-44', password: '2291' },
+  { id: 45, name: 'Андрей', surname: 'Чуманенков', tab: '20', org: 'ООО ПТ', login: 'pt-cha-20', password: '5803' },
+  { id: 46, name: 'Алексей', surname: 'Ширшонков', tab: '49', org: 'ООО ПТ', login: 'pt-sha-49', password: '6925' },
+  { id: 47, name: 'Анна', surname: 'Кильдишова', tab: '3', org: 'ИП', login: 'ip-ka-3', password: '4150' },
+  { id: 48, name: 'Дмитрий', surname: 'Метальников', tab: '4', org: 'ИП', login: 'ip-md-4', password: '2139' },
+  { id: 49, name: 'Владимир', surname: 'Сальников', tab: '1', org: 'ИП', login: 'ip-sv-1', password: '1750' },
+  { id: 50, name: 'Вадим', surname: 'Сахаров', tab: '2', org: 'ИП', login: 'ip-sv-2', password: '4733' },
+  { id: 51, name: 'Вадим', surname: 'Сахаров', tab: '5', org: 'ИП', login: 'ip-sv-5', password: '5741' },
 ];
 
 const ADMIN_PASSWORDS = ['admin123', 'tablo2024', 'промтепло'];
@@ -1085,8 +1154,11 @@ function renderInput() {
         <div class="section-label">Что хотите сделать?</div>
         <div class="buttons-grid">
           <button class="btn btn-primary" onclick="goFillDate()">📝 Заполнить табель</button>
-          <button class="btn btn-secondary" onclick="goCheckDate()">🔍 Проверить заполнение</button>
-          <button class="btn btn-secondary" onclick="goExportPwd()">📊 Выгрузить сводный табель</button>
+          <div class="btn-check-row">
+            <button class="btn btn-secondary btn-sq" onclick="doLogout()" title="Выйти">✕</button>
+            <button class="btn btn-secondary btn-check-main" onclick="goCheckDate()">🔍 Проверить заполнение</button>
+          </div>
+          ${['Мезякаев','Сластникова','Филимонов','Филимонова','Клюенкова','Нестерова'].includes(state.currentUser?.surname) ? '<button class="btn btn-secondary" onclick="goExportPwd()">📊 Выгрузить сводный табель</button>' : ''}
         </div>
       `;
       break;
@@ -1239,8 +1311,11 @@ function renderInput() {
         <div class="section-label">Что хотите сделать дальше?</div>
         <div class="buttons-grid">
           <button class="btn btn-primary" onclick="goFillDate()">📝 Заполнить табель</button>
-          <button class="btn btn-secondary" onclick="goCheckDate()">🔍 Проверить заполнение</button>
-          <button class="btn btn-secondary" onclick="goExportPwd()">📊 Выгрузить сводный табель</button>
+          <div class="btn-check-row">
+            <button class="btn btn-secondary btn-sq" onclick="doLogout()" title="Выйти">✕</button>
+            <button class="btn btn-secondary btn-check-main" onclick="goCheckDate()">🔍 Проверить заполнение</button>
+          </div>
+          ${['Мезякаев','Сластникова','Филимонов','Филимонова','Клюенкова','Нестерова'].includes(state.currentUser?.surname) ? '<button class="btn btn-secondary" onclick="goExportPwd()">📊 Выгрузить сводный табель</button>' : ''}
         </div>
       `;
       break;
@@ -1357,10 +1432,10 @@ function doLogin() {
     return;
   }
   // Validate formats: login = 2 letters + 2 digits, password = 4 digits
-  const loginOk = /^[a-zA-Z]{2}\d{2}$/.test(l);
+  const loginOk = /^(pt|ip)-[a-z]+-\d+$/i.test(l);
   const passOk  = /^\d{4}$/.test(p);
   if (!loginOk || !passOk) {
-    if (splashAlert) { splashAlert.classList.remove('hidden'); splashAlert.textContent = '❌ Неверный формат логина или пароля.'; }
+    if (splashAlert) { splashAlert.classList.remove('hidden'); splashAlert.textContent = '❌ Неверный логин или пароль.'; }
     return;
   }
   const worker = EMPLOYEES.find(e =>
@@ -1385,6 +1460,18 @@ function doLogin() {
 }
 
 function goMenu() { state.screen = 'menu'; state.selectedDate = null; state.checkDate = null; resetCal(); render(); }
+function doLogout() {
+  state.currentUser = null;
+  state.screen = 'login';
+  state.loginInput = ''; state.passwordInput = '';
+  state.messages = [];
+  state.selectedDate = null; state.checkDate = null;
+  state.extraHours = 0; state.tabelText = '';
+  document.getElementById('mainApp').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('loginLogin').value = '';
+  document.getElementById('loginPassword').value = '';
+}
 function goHome() {
   if (state.currentUser) {
     state.selectedDate = null;
