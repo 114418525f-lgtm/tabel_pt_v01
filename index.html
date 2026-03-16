@@ -259,6 +259,7 @@
   .btn {
     width: 100%;
     padding: 11px 16px;
+    min-height: 44px;
     border-radius: var(--radius-sm);
     font-family: 'Onest', sans-serif;
     font-size: 13px;
@@ -303,10 +304,13 @@
   }
   .btn-check-row .btn-check-main { flex: 1; }
   .btn-danger {
-    background: rgba(239,68,68,0.1);
-    border-color: rgba(239,68,68,0.3);
-    color: var(--danger);
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border-color: transparent;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(239,68,68,0.25);
   }
+  .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(239,68,68,0.4); }
   .btn-success {
     background: linear-gradient(135deg, #16a34a, #15803d);
     color: #fff;
@@ -329,14 +333,14 @@
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 14px;
+    padding: 10px;
     margin-bottom: 12px;
   }
   .cal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
   .cal-title {
     font-size: 13px;
@@ -360,24 +364,24 @@
   .cal-days-header {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 3px;
-    margin-bottom: 4px;
+    gap: 2px;
+    margin-bottom: 2px;
   }
   .cal-day-name {
     text-align: center;
     font-size: 10px;
     color: var(--text3);
-    padding: 4px;
+    padding: 2px;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
   }
   .cal-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 3px;
+    gap: 2px;
   }
   .cal-day {
-    aspect-ratio: 1;
+    aspect-ratio: 5 / 4;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -414,6 +418,16 @@
     border-radius: 50%;
   }
   .cal-day.filled.selected::after { background: #fff; }
+  .cal-day.missing::after {
+    content: '';
+    position: absolute;
+    bottom: 3px; left: 50%;
+    transform: translateX(-50%);
+    width: 4px; height: 4px;
+    background: var(--danger);
+    border-radius: 50%;
+  }
+  .cal-day.missing.selected::after { background: #fff; }
   .cal-day.empty { cursor: default; }
   .cal-day.disabled {
     color: var(--text3);
@@ -782,7 +796,7 @@
   }
   .login-logo-wrap {
     width: 100px; height: 100px;
-    margin-bottom: 20px;
+    margin-bottom: clamp(20px, 4dvh, 36px);
     position: relative;
     z-index: 0;
   }
@@ -809,7 +823,7 @@
     color: var(--text);
     text-align: center;
     letter-spacing: -0.01em;
-    margin-bottom: 6px;
+    margin-bottom: clamp(6px, 1.5dvh, 12px);
   }
   .login-system {
     font-size: 12px;
@@ -817,6 +831,7 @@
     text-align: center;
     letter-spacing: 0.04em;
     text-transform: uppercase;
+    margin-bottom: clamp(20px, 3.5dvh, 32px);
   }
   .login-divider {
     width: 40px; height: 2px;
@@ -897,11 +912,11 @@
     </div>
     <div class="login-company">ООО «Промышленное тепло»</div>
     <div class="login-system">Система учёта рабочего времени</div>
-    <div class="login-divider"></div>
+
     <div class="login-form">
       <div class="login-label">Введите логин и пароль для входа</div>
-      <input class="login-input" id="loginLogin" placeholder="Логин (например: ab-cd-89)" autocomplete="username" oninput="state.loginInput=this.value" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()" />
-      <input class="login-input" id="loginPassword" placeholder="Пароль (4 цифры)" type="password" autocomplete="current-password" maxlength="4" oninput="state.passwordInput=this.value" onkeydown="if(event.key==='Enter')doLogin()" />
+      <input class="login-input" id="loginLogin" placeholder="Логин" autocomplete="username" oninput="state.loginInput=this.value" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()" />
+      <input class="login-input" id="loginPassword" placeholder="Пароль" type="password" autocomplete="current-password" maxlength="4" oninput="state.passwordInput=this.value" onkeydown="if(event.key==='Enter')doLogin()" />
       <div id="loginSplashAlert" class="login-alert hidden">❌ Неверный логин или пароль.</div>
       <button class="login-btn" onclick="doLogin()">Войти →</button>
     </div>
@@ -1156,12 +1171,10 @@ function renderInput() {
     case 'menu':
       el.innerHTML = `
         <div class="worker-pill">👤 ${state.currentUser.name} ${state.currentUser.surname}</div>
-        <div class="section-label">Что хотите сделать?</div>
         <div class="buttons-grid">
-          <button class="btn btn-primary" onclick="goFillDate()">📝 Заполнить табель</button>
-          <div class="btn-check-row">
-            <button class="btn btn-secondary btn-sq" onclick="doLogout()" title="Выйти">✕</button>
-            <button class="btn btn-secondary btn-check-main" onclick="goCheckDate()">🔍 Проверить заполнение</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" style="flex:3" onclick="goFillDate()">📝 Заполнить табель</button>
+            <button class="btn btn-danger" style="flex:1" onclick="doLogout()">✕ Завершить</button>
           </div>
           ${['Мезякаев','Сластникова','Филимонов','Филимонова','Клюенкова','Нестерова'].includes(state.currentUser?.surname) ? '<button class="btn btn-secondary" onclick="goExportPwd()">📊 Выгрузить сводный табель</button>' : ''}
         </div>
@@ -1177,7 +1190,6 @@ function renderInput() {
           ? `✏️ Редактировать ${formatDateShort(state.selectedDate)}`
           : `✅ Заполнить ${formatDateShort(state.selectedDate)}`;
       el.innerHTML = `
-        <div class="missing-dates-fixed">${missing.length > 0 ? `⚠️ Не заполнено: ${missing.map(formatDateShort).join(', ')}` : '&nbsp;'}</div>
         ${buildCalendar(false)}
         <div class="buttons-grid">
           <button class="btn ${existingEntry ? 'btn-edit' : 'btn-success'}" id="btnFill" onclick="doFillDate()" ${state.selectedDate?'':'disabled'}>
@@ -1350,10 +1362,12 @@ function buildCalendar(monthMode) {
     const dow = new Date(y, m, d).getDay(); // 0=Sun,6=Sat
     const isWeekend = dow === 0 || dow === 6;
     const isFuture = new Date(y, m, d) > new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const isMissing = !isFilled && !isWeekend && !isFuture;
     const cls = ['cal-day',
       isToday ? 'today' : '',
       isSel   ? 'selected' : '',
       isFilled ? 'filled' : '',
+      isMissing ? 'missing' : '',
       isWeekend ? 'weekend' : '',
       isFuture  ? 'disabled' : '',
     ].filter(Boolean).join(' ');
@@ -1456,11 +1470,22 @@ function doLogin() {
     return;
   }
   state.currentUser = worker;
-  state.screen = 'menu';
+  state.screen = 'fill_date';
+  state.selectedDate = null;
+  state.extraHours = 0;
+  state.tabelText = '';
+  state.isEditing = false;
+  resetCal();
   // Switch screens
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('mainApp').classList.remove('hidden');
-  addBotMsg(`Рад Вас видеть, ${worker.name}! Выберите вариант того, что Вы хотите сделать.`);
+  addBotMsg(`Здравствуйте, ${worker.name}! Я — TabelBot, ваш помощник по учёту рабочего времени.`);
+  const _missing = getMissingDates();
+  if (_missing.length > 0) {
+    addBotMsg(`Незаполненные дни: ${_missing.map(formatDateShort).join(', ')}.`);
+  } else {
+    addBotMsg('Все рабочие дни текущего месяца заполнены.');
+  }
   render();
 }
 
@@ -1649,7 +1674,6 @@ function doExport() {
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-addBotMsg('Добрый день! Я — бот, созданный для работы с табелем учёта рабочего времени. Введите своё имя и фамилию.');
 render();
 </script>
 </body>
