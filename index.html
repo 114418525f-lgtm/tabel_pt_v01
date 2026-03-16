@@ -438,20 +438,37 @@
   .cal-day.weekend.disabled { color: var(--text3); }
 
   /* Hours selector */
+  /* Single-line object input */
+  .object-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Onest', sans-serif;
+    font-size: 13px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 12px;
+  }
+  .object-input:focus { border-color: var(--accent); }
+  .object-input::placeholder { color: var(--text3); }
+
   .hours-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
     margin-bottom: 12px;
   }
   .hour-btn {
-    padding: 9px 6px;
+    padding: 7px 2px;
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     color: var(--text2);
     font-family: 'Onest', sans-serif;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.15s;
@@ -465,6 +482,56 @@
     font-weight: 600;
   }
 
+  /* Object cards */
+  .item-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .item-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .item-card-num {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .item-remove {
+    background: none;
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--danger);
+    border-radius: 4px;
+    width: 22px; height: 22px;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .item-remove:hover { background: rgba(239,68,68,0.12); border-color: var(--danger); }
+  .btn-add-item {
+    width: 100%;
+    padding: 8px;
+    background: none;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text3);
+    font-family: 'Onest', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 12px;
+  }
+  .btn-add-item:hover { border-color: var(--accent); color: var(--accent); }
+
   /* Textarea */
   .tabel-textarea {
     width: 100%;
@@ -474,10 +541,11 @@
     color: var(--text);
     font-family: 'Onest', sans-serif;
     font-size: 13px;
-    padding: 12px 14px;
-    resize: vertical;
+    padding: 10px 14px;
+    resize: none;
     outline: none;
-    min-height: 90px;
+    min-height: calc(1.5em * 4 + 20px);
+    overflow-y: hidden;
     margin-bottom: 12px;
     transition: border-color 0.2s;
     line-height: 1.5;
@@ -1024,7 +1092,7 @@ let state = {
   calViewYear: new Date().getFullYear(),
   calViewMonth: new Date().getMonth(),
   extraHours: 0,
-  tabelText: '',
+  tabelItems: [{ object: '', tabel: '' }],
   isEditing: false,
   tabelData: {},        // { userId: { 'YYYY-MM-DD': { tabel, plus } } }
   checkDate: null,
@@ -1205,20 +1273,32 @@ function renderInput() {
     }
 
     case 'fill_data': {
-      const cnt = state.tabelText.length;
+      const itemsHtml = state.tabelItems.map((item, i) => `
+        <div class="item-card" id="item-card-${i}">
+          <div class="item-card-header">
+            <span class="item-card-num">Объект ${i + 1}</span>
+            ${state.tabelItems.length > 1 ? `<button class="item-remove" onclick="removeItem(${i})">✕</button>` : ''}
+          </div>
+          <input class="object-input" type="text" maxlength="150"
+            placeholder="Название объекта…"
+            value="${(item.object||'').replace(/"/g,'&quot;')}"
+            oninput="state.tabelItems[${i}].object=this.value" />
+          <div class="section-label" style="margin-top:4px">Выполненные работы</div>
+          <textarea class="tabel-textarea" data-idx="${i}" maxlength="500"
+            placeholder="Описание выполненных работ…"
+            oninput="state.tabelItems[${i}].tabel=this.value;autoGrow(this)">${item.tabel||''}</textarea>
+        </div>
+      `).join('');
       el.innerHTML = `
         ${state.isEditing ? `<div class="edit-mode-banner">✏️ Режим редактирования — ${formatDate(state.selectedDate)}</div>` : ''}
-        <div class="section-label">Доп. часы за ${state.selectedDate ? formatDate(state.selectedDate) : ''}</div>
+        ${itemsHtml}
+        <button class="btn-add-item" onclick="addItem()">+ Добавить объект</button>
+        <div class="section-label">Дополнительные часы</div>
         <div class="hours-grid">
           ${[1,2,3,4,5,6,7,8].map(h => `
-            <button class="hour-btn ${state.extraHours===h?'active':''}" onclick="setHours(${h})">+${h} ч</button>
+            <button class="hour-btn ${state.extraHours===h?'active':''}" onclick="setHours(${h})">+${h}</button>
           `).join('')}
         </div>
-        <div class="section-label">Данные табеля</div>
-        <textarea class="tabel-textarea" id="tabelText" maxlength="300"
-          placeholder="Введите данные табеля (до 300 символов)…"
-          oninput="state.tabelText=this.value;updateCharCount()">${state.tabelText}</textarea>
-        <div class="char-count ${cnt>240?'warn':''}" id="charCount">${cnt}/300</div>
         <div class="buttons-grid">
           <button class="btn btn-success" onclick="doSaveTabel()">
             ${state.isEditing ? '💾 Сохранить изменения' : '💾 Записать'}
@@ -1229,6 +1309,9 @@ function renderInput() {
           </div>
         </div>
       `;
+      requestAnimationFrame(() => {
+        document.querySelectorAll('.tabel-textarea').forEach(ta => autoGrow(ta));
+      });
       break;
     }
 
@@ -1417,6 +1500,24 @@ function setHours(h) {
   state.extraHours = state.extraHours === h ? 0 : h;
   renderInput();
 }
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+function addItem() {
+  state.tabelItems.push({ object: '', tabel: '' });
+  render();
+  requestAnimationFrame(() => {
+    const cards = document.querySelectorAll('.item-card');
+    if (cards.length) cards[cards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+}
+function removeItem(i) {
+  if (state.tabelItems.length <= 1) return;
+  state.tabelItems.splice(i, 1);
+  render();
+}
+
 function updateCharCount() {
   const cnt = state.tabelText.length;
   const el = document.getElementById('charCount');
@@ -1473,7 +1574,7 @@ function doLogin() {
   state.screen = 'fill_date';
   state.selectedDate = null;
   state.extraHours = 0;
-  state.tabelText = '';
+  state.tabelItems = [{ object: '', tabel: '' }];
   state.isEditing = false;
   resetCal();
   // Switch screens
@@ -1496,7 +1597,7 @@ function doLogout() {
   state.loginInput = ''; state.passwordInput = '';
   state.messages = [];
   state.selectedDate = null; state.checkDate = null;
-  state.extraHours = 0; state.tabelText = '';
+  state.extraHours = 0; state.tabelItems = [{ object: '', tabel: '' }];
   document.getElementById('mainApp').classList.add('hidden');
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('loginLogin').value = '';
@@ -1506,7 +1607,7 @@ function goHome() {
   if (state.currentUser) {
     state.selectedDate = null;
     state.extraHours = 0;
-    state.tabelText = '';
+    state.tabelItems = [{ object: '', tabel: '' }];
     state.isEditing = false;
     state.checkDate = null;
     resetCal();
@@ -1518,7 +1619,7 @@ function goHome() {
     state.loginInput = ''; state.passwordInput = '';
     state.messages = [];
     state.selectedDate = null; state.checkDate = null;
-    state.extraHours = 0; state.tabelText = '';
+    state.extraHours = 0; state.tabelItems = [{ object: '', tabel: '' }];
     addBotMsg('Добрый день! Я — бот, созданный для работы с табелем учёта рабочего времени. Введите логин и пароль.');
     render();
   }
@@ -1529,7 +1630,7 @@ function goFillDate() {
   state.screen = 'fill_date';
   state.selectedDate = null;
   state.extraHours = 0;
-  state.tabelText = '';
+  state.tabelItems = [{ object: '', tabel: '' }];
   state.isEditing = false;
   resetCal();
   addBotMsg('Выберите дату, за которую хотите заполнить табель.');
@@ -1554,12 +1655,14 @@ function doFillDate() {
   const existing = (state.tabelData[uid] || {})[state.selectedDate];
   state.isEditing = !!existing;
   if (existing) {
-    state.tabelText = existing.tabel === '(без описания)' ? '' : existing.tabel;
+    state.tabelItems = existing.items && existing.items.length
+      ? existing.items.map(it => ({ object: it.object || '', tabel: it.tabel || '' }))
+      : [{ object: existing.object || '', tabel: existing.tabel === '(без описания)' ? '' : (existing.tabel || '') }];
     state.extraHours = existing.plus || 0;
     addUserMsg(`Редактировать за ${formatDate(state.selectedDate)}`);
     addBotMsg(`Вы можете изменить данные за ${formatDate(state.selectedDate)}. Текущие данные уже загружены.`);
   } else {
-    state.tabelText = '';
+    state.tabelItems = [{ object: '', tabel: '' }];
     state.extraHours = 0;
     addUserMsg(`Заполнить за ${formatDate(state.selectedDate)}`);
     addBotMsg(`Заполните данные за ${formatDate(state.selectedDate)}.`);
@@ -1571,13 +1674,20 @@ function doFillDate() {
 function doSaveTabel() {
   const uid = state.currentUser.id;
   if (!state.tabelData[uid]) state.tabelData[uid] = {};
+  const firstItem = state.tabelItems[0] || {};
   state.tabelData[uid][state.selectedDate] = {
-    tabel: state.tabelText || '(без описания)',
+    items: state.tabelItems.map(it => ({ object: it.object || '', tabel: it.tabel || '' })),
+    object: firstItem.object || '',
+    tabel: firstItem.tabel || '(без описания)',
     plus: state.extraHours,
   };
   saveData();
+  const summary = state.tabelItems
+    .filter(it => it.object || it.tabel)
+    .map(it => it.object ? `${it.object}: ${it.tabel||'—'}` : (it.tabel||'—'))
+    .join('; ') || '(без описания)';
   const hrs = state.extraHours ? `, доп. часы: +${state.extraHours}` : '';
-  addUserMsg(`${state.tabelText || '(без описания)'}${hrs}`);
+  addUserMsg(`${summary}${hrs}`);
   state.screen = 'saved';
   const msg = state.isEditing
     ? 'Данные успешно обновлены! Выберите вариант того, что Вы хотите сделать дальше.'
