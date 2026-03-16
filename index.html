@@ -381,16 +381,18 @@
     gap: 2px;
   }
   .cal-day {
-    aspect-ratio: 5 / 4;
+    aspect-ratio: 7 / 4;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    padding-left: 50%;
     font-size: 12px;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s;
     border: 1px solid transparent;
     position: relative;
+    overflow: hidden;
   }
   .cal-day:hover:not(.empty):not(.disabled) {
     background: rgba(79,142,247,0.12);
@@ -408,26 +410,24 @@
     font-weight: 600;
   }
   .cal-day.today.selected { color: #fff; }
-  .cal-day.filled::after {
+  .cal-day.filled::before {
     content: '';
     position: absolute;
-    bottom: 3px; left: 50%;
-    transform: translateX(-50%);
-    width: 4px; height: 4px;
+    left: 30%; top: 50%;
+    transform: translateY(-50%);
+    width: 5px; height: 5px;
     background: var(--success);
     border-radius: 50%;
   }
-  .cal-day.filled.selected::after { background: #fff; }
-  .cal-day.missing::after {
+  .cal-day.missing::before {
     content: '';
     position: absolute;
-    bottom: 3px; left: 50%;
-    transform: translateX(-50%);
-    width: 4px; height: 4px;
+    left: 30%; top: 50%;
+    transform: translateY(-50%);
+    width: 5px; height: 5px;
     background: var(--danger);
     border-radius: 50%;
   }
-  .cal-day.missing.selected::after { background: #fff; }
   .cal-day.empty { cursor: default; }
   .cal-day.disabled {
     color: var(--text3);
@@ -482,55 +482,73 @@
     font-weight: 600;
   }
 
-  /* Object cards */
-  .item-card {
+  /* Object tabs */
+  .tabs-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-bottom: 12px;
+    padding-bottom: 2px;
+  }
+  .tabs-bar::-webkit-scrollbar { display: none; }
+  .tab-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 4px;
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    position: relative;
-  }
-  .item-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-  .item-card-num {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text3);
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .item-remove {
-    background: none;
-    border: 1px solid rgba(239,68,68,0.3);
-    color: var(--danger);
-    border-radius: 4px;
-    width: 22px; height: 22px;
-    font-size: 11px;
+    color: var(--text2);
+    font-family: 'Onest', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
     cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+    white-space: nowrap;
     transition: all 0.15s;
     flex-shrink: 0;
+    width: calc((100% - 16px) / 5);
   }
-  .item-remove:hover { background: rgba(239,68,68,0.12); border-color: var(--danger); }
-  .btn-add-item {
-    width: 100%;
-    padding: 8px;
+  .tab-item:hover { border-color: var(--accent); color: var(--text); }
+  .tab-item.active {
+    background: rgba(79,142,247,0.12);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .tab-close {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 10px;
+    cursor: pointer;
+    padding: 0 0 0 2px;
+    line-height: 1;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+    display: flex;
+    align-items: center;
+  }
+  .tab-close:hover { opacity: 1; }
+  .tab-add {
+    width: 28px;
+    height: 28px;
     background: none;
     border: 1px dashed var(--border);
     border-radius: var(--radius-sm);
     color: var(--text3);
-    font-family: 'Onest', sans-serif;
-    font-size: 12px;
+    font-size: 16px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
     transition: all 0.15s;
-    margin-bottom: 12px;
   }
-  .btn-add-item:hover { border-color: var(--accent); color: var(--accent); }
+  .tab-add:hover { border-color: var(--accent); color: var(--accent); }
 
   /* Textarea */
   .tabel-textarea {
@@ -766,6 +784,17 @@
     display: flex;
     align-items: center;
     gap: 6px;
+  }
+
+  .field-error {
+    font-size: 11px;
+    color: var(--danger);
+    margin-top: -8px;
+    margin-bottom: 10px;
+    padding-left: 2px;
+  }
+  .input-invalid {
+    border-color: var(--danger) !important;
   }
 
   .existing-entry-preview {
@@ -1005,7 +1034,7 @@
     <div class="chat-header">
       <div class="bot-avatar">🤖</div>
       <div class="bot-info">
-        <div class="bot-name">Бот Табель</div>
+        <div class="bot-name">ТабелЯша</div>
         <div class="bot-status">онлайн</div>
       </div>
     </div>
@@ -1023,7 +1052,7 @@
 <script>
 // ─── State ───────────────────────────────────────────────────────────────────
 const EMPLOYEES = [
-  { id: 1, name: 'Иван', surname: 'Авдюшкин', tab: '17', org: 'ООО ПТ', login: 'pt-ai-17', password: '2824' },
+  { id: 1, name: 'Иван', surname: 'Авдюшкин', tab: '17', org: 'ООО ПТ', login: '1234', password: '1234' },
   { id: 2, name: 'Алексей', surname: 'Акимов', tab: '24', org: 'ООО ПТ', login: 'pt-aa-24', password: '1409' },
   { id: 3, name: 'Татьяна', surname: 'Альмяшева', tab: '27', org: 'ООО ПТ', login: 'pt-at-27', password: '5506' },
   { id: 4, name: 'Сергей', surname: 'Анисимов', tab: '29', org: 'ООО ПТ', login: 'pt-as-29', password: '5012' },
@@ -1093,6 +1122,7 @@ let state = {
   calViewMonth: new Date().getMonth(),
   extraHours: 0,
   tabelItems: [{ object: '', tabel: '' }],
+  activeTabIdx: 0,
   isEditing: false,
   tabelData: {},        // { userId: { 'YYYY-MM-DD': { tabel, plus } } }
   checkDate: null,
@@ -1273,26 +1303,28 @@ function renderInput() {
     }
 
     case 'fill_data': {
-      const itemsHtml = state.tabelItems.map((item, i) => `
-        <div class="item-card" id="item-card-${i}">
-          <div class="item-card-header">
-            <span class="item-card-num">Объект ${i + 1}</span>
-            ${state.tabelItems.length > 1 ? `<button class="item-remove" onclick="removeItem(${i})">✕</button>` : ''}
-          </div>
-          <input class="object-input" type="text" maxlength="150"
-            placeholder="Название объекта…"
-            value="${(item.object||'').replace(/"/g,'&quot;')}"
-            oninput="state.tabelItems[${i}].object=this.value" />
-          <div class="section-label" style="margin-top:4px">Выполненные работы</div>
-          <textarea class="tabel-textarea" data-idx="${i}" maxlength="500"
-            placeholder="Описание выполненных работ…"
-            oninput="state.tabelItems[${i}].tabel=this.value;autoGrow(this)">${item.tabel||''}</textarea>
-        </div>
+      const activeIdx = Math.min(state.activeTabIdx, state.tabelItems.length - 1);
+      const item = state.tabelItems[activeIdx];
+      const tabsHtml = state.tabelItems.map((it, i) => `
+        <button class="tab-item ${i === activeIdx ? 'active' : ''}" onclick="setActiveTab(${i})">
+          Объект ${i + 1}
+          ${state.tabelItems.length > 1 ? `<span class="tab-close" onclick="event.stopPropagation();removeItem(${i})">✕</span>` : ''}
+        </button>
       `).join('');
       el.innerHTML = `
         ${state.isEditing ? `<div class="edit-mode-banner">✏️ Режим редактирования — ${formatDate(state.selectedDate)}</div>` : ''}
-        ${itemsHtml}
-        <button class="btn-add-item" onclick="addItem()">+ Добавить объект</button>
+        <div class="tabs-bar">
+          ${tabsHtml}
+          ${state.tabelItems.length < 5 ? `<button class="tab-add" onclick="addItem()">+</button>` : ''}
+        </div>
+        <input class="object-input" type="text" maxlength="150"
+          placeholder="Название объекта…"
+          value="${(item.object||'').replace(/"/g,'&quot;')}"
+          oninput="state.tabelItems[${activeIdx}].object=this.value" />
+        <div class="section-label" style="margin-top:4px">Выполненные работы</div>
+        <textarea class="tabel-textarea" data-idx="${activeIdx}" maxlength="500"
+          placeholder="Описание выполненных работ…"
+          oninput="state.tabelItems[${activeIdx}].tabel=this.value;autoGrow(this)">${item.tabel||''}</textarea>
         <div class="section-label">Дополнительные часы</div>
         <div class="hours-grid">
           ${[1,2,3,4,5,6,7,8].map(h => `
@@ -1504,18 +1536,34 @@ function autoGrow(el) {
   el.style.height = 'auto';
   el.style.height = el.scrollHeight + 'px';
 }
-function addItem() {
-  state.tabelItems.push({ object: '', tabel: '' });
-  render();
+function setActiveTab(i) {
+  state.activeTabIdx = i;
+  renderInput();
   requestAnimationFrame(() => {
-    const cards = document.querySelectorAll('.item-card');
-    if (cards.length) cards[cards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    document.querySelectorAll('.tabel-textarea').forEach(ta => autoGrow(ta));
+  });
+}
+function addItem() {
+  if (state.tabelItems.length >= 5) return;
+  state.tabelItems.push({ object: '', tabel: '' });
+  state.activeTabIdx = state.tabelItems.length - 1;
+  renderInput();
+  requestAnimationFrame(() => {
+    const bar = document.querySelector('.tabs-bar');
+    if (bar) bar.scrollLeft = bar.scrollWidth;
+    document.querySelectorAll('.tabel-textarea').forEach(ta => autoGrow(ta));
   });
 }
 function removeItem(i) {
   if (state.tabelItems.length <= 1) return;
   state.tabelItems.splice(i, 1);
-  render();
+  if (state.activeTabIdx >= state.tabelItems.length) {
+    state.activeTabIdx = state.tabelItems.length - 1;
+  }
+  renderInput();
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.tabel-textarea').forEach(ta => autoGrow(ta));
+  });
 }
 
 function updateCharCount() {
@@ -1551,11 +1599,9 @@ function doLogin() {
     if (splashAlert) { splashAlert.classList.remove('hidden'); splashAlert.textContent = '❌ Введите логин и пароль.'; }
     return;
   }
-  // Validate formats: login = 2 letters + 2 digits, password = 4 digits
-  const loginOk = /^(pt|ip)-[a-z]+-\d+$/i.test(l);
-  const passOk  = /^\d{4}$/.test(p);
-  if (!loginOk || !passOk) {
-    if (splashAlert) { splashAlert.classList.remove('hidden'); splashAlert.textContent = '❌ Неверный логин или пароль.'; }
+  // Validate: login and password must be non-empty
+  if (!l || !p) {
+    if (splashAlert) { splashAlert.classList.remove('hidden'); splashAlert.textContent = '❌ Введите логин и пароль.'; }
     return;
   }
   const worker = EMPLOYEES.find(e =>
@@ -1575,12 +1621,13 @@ function doLogin() {
   state.selectedDate = null;
   state.extraHours = 0;
   state.tabelItems = [{ object: '', tabel: '' }];
+  state.activeTabIdx = 0;
   state.isEditing = false;
   resetCal();
   // Switch screens
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('mainApp').classList.remove('hidden');
-  addBotMsg(`Здравствуйте, ${worker.name}! Я — TabelBot, ваш помощник по учёту рабочего времени.`);
+  addBotMsg(`Здравствуйте, ${worker.name}! Я — ТабелЯша, ваш помощник по учёту рабочего времени.`);
   const _missing = getMissingDates();
   if (_missing.length > 0) {
     addBotMsg(`Незаполненные дни: ${_missing.map(formatDateShort).join(', ')}.`);
@@ -1597,7 +1644,7 @@ function doLogout() {
   state.loginInput = ''; state.passwordInput = '';
   state.messages = [];
   state.selectedDate = null; state.checkDate = null;
-  state.extraHours = 0; state.tabelItems = [{ object: '', tabel: '' }];
+  state.extraHours = 0; state.tabelItems = [{ object: '', tabel: '' }]; state.activeTabIdx = 0;
   document.getElementById('mainApp').classList.add('hidden');
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('loginLogin').value = '';
@@ -1608,6 +1655,7 @@ function goHome() {
     state.selectedDate = null;
     state.extraHours = 0;
     state.tabelItems = [{ object: '', tabel: '' }];
+    state.activeTabIdx = 0;
     state.isEditing = false;
     state.checkDate = null;
     resetCal();
@@ -1619,7 +1667,7 @@ function goHome() {
     state.loginInput = ''; state.passwordInput = '';
     state.messages = [];
     state.selectedDate = null; state.checkDate = null;
-    state.extraHours = 0; state.tabelItems = [{ object: '', tabel: '' }];
+    state.extraHours = 0; state.tabelItems = [{ object: '', tabel: '' }]; state.activeTabIdx = 0;
     addBotMsg('Добрый день! Я — бот, созданный для работы с табелем учёта рабочего времени. Введите логин и пароль.');
     render();
   }
@@ -1631,6 +1679,7 @@ function goFillDate() {
   state.selectedDate = null;
   state.extraHours = 0;
   state.tabelItems = [{ object: '', tabel: '' }];
+  state.activeTabIdx = 0;
   state.isEditing = false;
   resetCal();
   addBotMsg('Выберите дату, за которую хотите заполнить табель.');
@@ -1658,11 +1707,13 @@ function doFillDate() {
     state.tabelItems = existing.items && existing.items.length
       ? existing.items.map(it => ({ object: it.object || '', tabel: it.tabel || '' }))
       : [{ object: existing.object || '', tabel: existing.tabel === '(без описания)' ? '' : (existing.tabel || '') }];
+    state.activeTabIdx = 0;
     state.extraHours = existing.plus || 0;
     addUserMsg(`Редактировать за ${formatDate(state.selectedDate)}`);
     addBotMsg(`Вы можете изменить данные за ${formatDate(state.selectedDate)}. Текущие данные уже загружены.`);
   } else {
     state.tabelItems = [{ object: '', tabel: '' }];
+    state.activeTabIdx = 0;
     state.extraHours = 0;
     addUserMsg(`Заполнить за ${formatDate(state.selectedDate)}`);
     addBotMsg(`Заполните данные за ${formatDate(state.selectedDate)}.`);
@@ -1672,6 +1723,34 @@ function doFillDate() {
 }
 
 function doSaveTabel() {
+  // Validate all tabs
+  const activeIdx = Math.min(state.activeTabIdx, state.tabelItems.length - 1);
+  for (let i = 0; i < state.tabelItems.length; i++) {
+    const it = state.tabelItems[i];
+    if (!it.object.trim() || !it.tabel.trim()) {
+      state.activeTabIdx = i;
+      renderInput();
+      requestAnimationFrame(() => {
+        const objInput = document.querySelector('.object-input');
+        const tabInput = document.querySelector('.tabel-textarea');
+        if (objInput && !state.tabelItems[i].object.trim()) objInput.classList.add('input-invalid');
+        if (tabInput && !state.tabelItems[i].tabel.trim()) tabInput.classList.add('input-invalid');
+        // Show error under the first empty field
+        const existing = document.querySelector('.field-error');
+        if (!existing) {
+          const target = (!state.tabelItems[i].object.trim() ? objInput : tabInput);
+          if (target) {
+            const err = document.createElement('div');
+            err.className = 'field-error';
+            err.textContent = '❌ Заполните обязательное поле';
+            target.insertAdjacentElement('afterend', err);
+          }
+        }
+      });
+      return;
+    }
+  }
+
   const uid = state.currentUser.id;
   if (!state.tabelData[uid]) state.tabelData[uid] = {};
   const firstItem = state.tabelItems[0] || {};
@@ -1688,12 +1767,17 @@ function doSaveTabel() {
     .join('; ') || '(без описания)';
   const hrs = state.extraHours ? `, доп. часы: +${state.extraHours}` : '';
   addUserMsg(`${summary}${hrs}`);
-  state.screen = 'saved';
   const msg = state.isEditing
-    ? 'Данные успешно обновлены! Выберите вариант того, что Вы хотите сделать дальше.'
-    : 'Спасибо! Данные успешно внесены! Выберите вариант того, что Вы хотите сделать дальше.';
+    ? 'Данные успешно обновлены! Выберите другую дату или заполните следующую.'
+    : 'Спасибо! Данные успешно внесены! Выберите следующую дату.';
   addBotMsg(msg);
   state.isEditing = false;
+  state.selectedDate = null;
+  state.extraHours = 0;
+  state.tabelItems = [{ object: '', tabel: '' }];
+  state.activeTabIdx = 0;
+  resetCal();
+  state.screen = 'fill_date';
   render();
 }
 
